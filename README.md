@@ -7,6 +7,10 @@ Automatically adds or updates a next-due-date stamp in the title of every Habiti
 
 On subsequent runs the date is updated in place. The day-of-week + date format makes it easy to glance at your dailies and know exactly when each one is coming up next.
 
+## Why this exists
+
+Habitica has no built-in due-date notifications. When a daily is due tomorrow, Habitica gives you no advance warning — you only discover it the moment the day rolls over and the task appears as overdue. For anything that needs preparation or a time block, that leaves you with at most one day's notice, often less. Running this script regularly (e.g. as a scheduled task or cron job) stamps each daily's title with its next due date so you can see at a glance what is coming up, plan ahead, and avoid last-minute scrambles.
+
 ## Requirements
 
 - Python 3.10+
