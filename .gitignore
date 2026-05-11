@@ -1,0 +1,13 @@
+# Credentials
+habitica_env.sh
+habitica_env.ps1
+cc_env.sh
+
+# Virtual environment
+.venv/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
