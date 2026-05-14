@@ -2,6 +2,7 @@
 habitica_env.sh
 habitica_env.ps1
 cc_env.sh
+cc_habitica.sh
 
 # Virtual environment
 .venv/

@@ -50,6 +50,16 @@ def get_dailies():
     return r.json()["data"]
 
 
+def is_every_day(task) -> bool:
+    freq = task.get("frequency", "")
+    if freq == "daily" and task.get("everyX", 1) == 1:
+        return True
+    if freq == "weekly":
+        repeat = task.get("repeat", {})
+        return all(repeat.get(d, False) for d in ("su", "m", "t", "w", "th", "f", "s"))
+    return False
+
+
 def next_due_date(task) -> str | None:
     """Return the first nextDue date as 'Ddd YYYY-MM-DD', or None."""
     slots = task.get("nextDue") or []
@@ -73,35 +83,40 @@ def main(dry_run: bool):
     dailies = get_dailies()
     print(f"Found {len(dailies)} dailies.{' (dry run — no changes will be saved)' if dry_run else ''}\n")
 
-    changed = skipped = 0
+    # DAILY is the longest action label (5 chars), UPDATE is 6
+    W = len("UPDATE")
 
+    changed = skipped = 0
     for task in dailies:
-        title     = task["text"]
-        task_id   = task["id"]
-        due_date  = next_due_date(task)
+        title    = task["text"]
+        task_id  = task["id"]
+        due_date = next_due_date(task)
+
+        if is_every_day(task):
+            print(f"  {'DAILY':<{W}}  {title}")
+            skipped += 1
+            continue
 
         if due_date is None:
-            print(f"  SKIP  {title!r}  (no nextDue)")
+            print(f"  {'SKIP':<{W}}  {title}  (no nextDue)")
             skipped += 1
             continue
 
         existing = DATE_RE.search(title)
-
         if existing:
-            has_dow  = existing.group(1) is not None
+            has_dow   = existing.group(1) is not None
             same_date = existing.group(2) == due_date[-10:]
             if has_dow and same_date:
-                print(f"  OK    {title!r}")
+                print(f"  {'OK':<{W}}  {title}")
                 continue
             new_title = DATE_RE.sub("", title).rstrip() + f" [{due_date}]"
             action = "UPDATE"
         else:
             new_title = title.rstrip() + f" [{due_date}]"
-            action = "ADD   "
+            action = "ADD"
 
-        print(f"  {action}  {title!r}  →  {new_title!r}")
+        print(f"  {action:<{W}}  {title}  →  {new_title}")
         changed += 1
-
         if not dry_run:
             update_task_title(task_id, new_title)
 
